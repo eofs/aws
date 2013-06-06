@@ -7,6 +7,17 @@ Utility program for Amazon Web Services
 * List EC2 instances for specific ELB
 * Run Fabric tasks against all EC2 instances or for EC2 instances for specific ELB
 
+**Motivation**
+
+It's possible to specify target hosts inside your Fabric files dynamically or statically. Modifying list of hosts would require you to modify your code directly. I didn't like that so I created a tool to easily define list of target machines for your tasks.
+
+**TODO**
+
+* More features!
+* Start/Stop/Terminate instances
+* Manage your AMIs
+* AWS Auto Scaling support
+
 #Installation#
 
 ```bash
