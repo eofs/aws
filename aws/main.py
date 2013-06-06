@@ -44,7 +44,12 @@ def ec2_fab(service, args):
     for name, args, kwargs, arg_hosts, arg_roles, arg_exclude_hosts in commands_to_run:
         method = getattr(module, name, None)
         if method is not None:
-            fab.execute(method, *args, **kwargs)
+            fab.execute(method,
+                        hosts=arg_hosts,
+                        roles=arg_roles,
+                        exclude_hosts=arg_exclude_hosts,
+                        *args, **kwargs
+            )
 
 def ec2_service_handler(parser, args):
     service = EC2Service(settings)
@@ -82,7 +87,8 @@ def main():
     ec2_service.add_argument('--list', '-l', action='store_true', help='List instances')
     ec2_service.add_argument('--regions', '-r', action='store_true', help='List regions')
     ec2_service.add_argument('--elb', '-e', help='Filter instances inside this ELB instance')
-    ec2_service.add_argument('--fab', '-f', help='Run Fabric tasks in EC2 instances. You can pass multiple arguments for your fabfile.', nargs='+', metavar=('fabfile method', 'arg1 arg2 arg3'))
+    ec2_service.add_argument('--fab', '-f', nargs='+', metavar=('fabfile method', ':arg1,arg2=val2,host=foo,hosts=\'h1;h2\','),
+                             help='Run Fabric tasks in EC2 instances. You can pass multiple arguments for your fabfile.')
     ec2_service.set_defaults(func=ec2_service_handler)
 
     elb_service = subparsers.add_parser('elb', help='Amazon Elastic Load Balancer')
