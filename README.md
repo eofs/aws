@@ -57,7 +57,9 @@ See [Boto's](http://boto.readthedocs.org/) documentation for more how to set Ama
 
 See [Fabric's](http://docs.fabfile.org/) documentation on how to set SSH access credentials: http://docs.fabfile.org/en/latest/usage/execution.html#leveraging-native-ssh-config-files
 
-#Usage#
+#Usage examples#
+
+See `aws --help` for more information or `aws ec2 --help` for command specific help.
 
 List all ELB instances:
 ```bash
