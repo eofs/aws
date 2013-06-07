@@ -1,6 +1,6 @@
 from boto.ec2 import elb
 
-from .service import BaseService
+from aws.libaws.service import BaseService
 
 
 class ELBService(BaseService):

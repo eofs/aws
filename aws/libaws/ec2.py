@@ -1,7 +1,7 @@
 from boto import ec2
 
-from .service import BaseService
-from .elb import ELBService
+from aws.libaws.service import BaseService
+from aws.libaws.elb import ELBService
 
 
 class EC2Service(BaseService):
