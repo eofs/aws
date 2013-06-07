@@ -28,7 +28,8 @@ def ec2_fab(service, args):
     """
     Run Fabric commands against EC2 instances
     """
-    instances = service.list(args.elb)
+    instance_ids = args.instances
+    instances = service.list(elb=args.elb, instance_ids=instance_ids)
     hosts = service.resolve_hosts(instances)
 
     fab.env.hosts = hosts
@@ -51,8 +52,7 @@ def ec2_fab(service, args):
                     hosts=arg_hosts,
                     roles=arg_roles,
                     exclude_hosts=arg_exclude_hosts,
-                    *args, **kwargs
-        )
+                    *args, **kwargs)
 
 
 def ec2_list_handler(parser, args):
@@ -60,7 +60,8 @@ def ec2_list_handler(parser, args):
     if 'regions' == args.type:
         list_regions(service)
     else:
-        reservations = service.list(elb=args.elb)
+        instance_ids = args.instances
+        reservations = service.list(elb=args.elb, instance_ids=instance_ids)
         for r in reservations:
             for i in r.instances:
                 state = ('       ' if i.state == 'stopped' else i.state)
@@ -96,12 +97,16 @@ def main():
 
     ec2_service_list = ec2_subparsers.add_parser('list', help='List items')
     ec2_service_list.add_argument('--elb', '-e', help='Filter instances inside this ELB instance')
+    ec2_service_list.add_argument('--instances', '-i', nargs='*', metavar=('id', 'id'),
+                                 help='List of instance IDs to use as filter')
     ec2_service_list.add_argument('--type', default='instances', choices=['instances', 'regions'],
                                   help='List items of this type')
     ec2_service_list.set_defaults(func=ec2_list_handler)
 
     ec2_service_fab = ec2_subparsers.add_parser('fab', help='Run Fabric commands')
     ec2_service_fab.add_argument('--elb', '-e', help='Run against EC2 instances for this ELB')
+    ec2_service_fab.add_argument('--instances', '-i', nargs='*', metavar=('id', 'id'),
+                                 help='List of instance IDs to use as filter')
     ec2_service_fab.add_argument('--file', '-f', nargs='+', help='Define fabfile to use')
     ec2_service_fab.add_argument('methods',
                                  metavar='method:arg1,arg2=val2,host=foo,hosts=\'h1;h2\',',
@@ -129,6 +134,7 @@ def main():
 
     arguments = p.parse_args()
     arguments.func(p, arguments)
+
 
 if __name__ == '__main__':
     main()
