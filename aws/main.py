@@ -25,7 +25,19 @@ def list_regions(service):
         }
 
 
-def instance_table_string(instances):
+def elb_table(balancers):
+    """
+    Print nice looking table of information from list of load balancers
+    """
+    t = prettytable.PrettyTable(['Name', 'DNS', 'Ports', 'Created'])
+    t.align = 'l'
+    for b in balancers:
+        ports = ['%s: %s -> %s' % (l[2], l[0], l[1]) for l in b.listeners]
+        ports = '\n'.join(ports)
+        t.add_row([b.name, b.dns_name, ports, b.created_time])
+    return t
+
+def ec2_table(instances):
     """
     Print nice looking table of information from list of instances
     """
@@ -77,7 +89,7 @@ def ec2_list_handler(parser, args):
         instance_list = []
         for r in reservations:
             instance_list.extend(r.instances)
-        print instance_table_string(instance_list)
+        print ec2_table(instance_list)
 
 
 def ec2_create_handler(parser, args):
@@ -88,14 +100,14 @@ def ec2_start_handler(parser, args):
     service = EC2Service(settings)
     instance_ids = args.instance
     instances = service.start(instance_ids)
-    print instance_table_string(instances)
+    print ec2_table(instances)
 
 
 def ec2_stop_handler(parser, args):
     service = EC2Service(settings)
     instance_ids = args.instance
     instances = service.stop(instance_ids, args.force)
-    print instance_table_string(instances)
+    print ec2_table(instances)
 
 
 def ec2_fab_handler(parser, args):
@@ -108,8 +120,7 @@ def elb_list_handler(parser, args):
     if 'regions' == args.type:
         list_regions(service)
     else:
-        for b in service.list():
-            print '%s: %s' % (b.name, b.dns_name)
+        print elb_table(service.list())
 
 
 def main():
