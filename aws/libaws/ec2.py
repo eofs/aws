@@ -1,3 +1,4 @@
+import boto
 from boto import ec2
 
 from aws.libaws.service import BaseService
@@ -7,7 +8,7 @@ from aws.libaws.elb import ELBService
 class EC2Service(BaseService):
     def __init__(self, settings):
         super(EC2Service, self).__init__(settings)
-        region_name = settings.get('EC2', 'REGION_NAME', None)
+        region_name = settings.get('EC2', 'REGION_NAME', 'us-west-1')
         self.conn = ec2.connect_to_region(region_name=region_name)
         assert self.conn is not None
 

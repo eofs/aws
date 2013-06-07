@@ -6,7 +6,7 @@ from aws.libaws.service import BaseService
 class ELBService(BaseService):
     def __init__(self, settings):
         super(ELBService, self).__init__(settings)
-        region_name = settings.get('ELB', 'REGION_NAME', None)
+        region_name = settings.get('ELB', 'REGION_NAME', 'us-west-1')
         self.conn = elb.connect_to_region(region_name=region_name)
         assert self.conn is not None
 
