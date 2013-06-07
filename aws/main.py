@@ -98,7 +98,7 @@ def main():
     ec2_service_list = ec2_subparsers.add_parser('list', help='List items')
     ec2_service_list.add_argument('--elb', '-e', help='Filter instances inside this ELB instance')
     ec2_service_list.add_argument('--instances', '-i', nargs='*', metavar=('id', 'id'),
-                                 help='List of instance IDs to use as filter')
+                                  help='List of instance IDs to use as filter')
     ec2_service_list.add_argument('--type', default='instances', choices=['instances', 'regions'],
                                   help='List items of this type')
     ec2_service_list.set_defaults(func=ec2_list_handler)
