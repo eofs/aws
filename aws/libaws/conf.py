@@ -6,7 +6,7 @@ class Settings(object):
     def __init__(self):
         self.config = ConfigParser.SafeConfigParser()
 
-        locations = (loc for loc in [os.curdir, os.path.expanduser('~/.awslib'), '/etc/awslib', os.environ.get('AWS_CONF')] if loc is not None)
+        locations = (loc for loc in [os.curdir, os.path.expanduser('~/.aws'), '/etc/aws', os.environ.get('AWS_CONF')] if loc is not None)
 
         for loc in locations:
             try:
