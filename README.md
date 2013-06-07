@@ -3,9 +3,11 @@ Utility program for Amazon Web Services
 
 **Features**
 
-* Wrapper for [Boto](http://boto.readthedocs.org/) and [Fabric](http://docs.fabfile.org/)
+* Command line interface for [Boto](http://boto.readthedocs.org/)
+* Wrapper for [Fabric](http://docs.fabfile.org/)
 * List instances and regions for ELB and EC2 services
 * List EC2 instances for specific ELB
+* Manager your EC2 instances
 * Run Fabric tasks against all EC2 instances or for EC2 instances for specific ELB
 
 **Motivation**
