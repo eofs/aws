@@ -111,7 +111,7 @@ def main():
     ec2_service_fab.add_argument('methods',
                                  metavar='method:arg1,arg2=val2,host=foo,hosts=\'h1;h2\',',
                                  nargs='+',
-                                 help='Run Fabric tasks in EC2 instances. You can pass multiple arguments for your fabfile.')
+                                 help='Specify one or more methods to execute.')
     ec2_service_fab.set_defaults(func=ec2_fab_handler)
 
     # ec2_service_start = ec2_subparsers.add_parser('start', help='Start instance')
