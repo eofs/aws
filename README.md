@@ -58,5 +58,5 @@ $ aws ec2 fab mymethod:name='Jeff'
 
 Or run Fabric tasks against only EC2 instances inside ELB:
 ```bash
-$ aws ec2 fab --elb MyBalancer mymethod
+$ aws ec2 fab mymethod --elb MyBalancer
 ```
