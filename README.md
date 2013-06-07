@@ -8,7 +8,7 @@ Utility program for Amazon Web Services
 * List instances and regions for ELB and EC2 services
 * List EC2 instances for specific ELB
 * Manager your EC2 instances
-* Run Fabric tasks against all EC2 instances or for EC2 instances for specific ELB
+* Run Fabric tasks against all EC2 instances or EC2 instances of specific ELB
 
 **Motivation**
 
@@ -93,7 +93,7 @@ You can pass parameters to your methods as with Fabric's `fab` command:
 $ aws ec2 fab mymethod:name='Jeff'
 ```
 
-Or run Fabric tasks against only EC2 instances inside ELB:
+Or run Fabric tasks against EC2 instances of specific ELB:
 ```bash
 $ aws ec2 fab mymethod --elb MyBalancer
 ```
