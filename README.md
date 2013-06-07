@@ -3,6 +3,7 @@ Utility program for Amazon Web Services
 
 **Features**
 
+* Wrapper for Boto and Fabric
 * List instances and regions for ELB and EC2 services
 * List EC2 instances for specific ELB
 * Run Fabric tasks against all EC2 instances or for EC2 instances for specific ELB
@@ -24,6 +25,26 @@ It's possible to specify target hosts inside your Fabric files dynamically or st
 $ pip install aws
 ```
 
+#Configuration#
+
+`aws` should work with minimal configuration.
+
+You only need to make sure that `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables are set.
+
+If you want to use Fabric and execute code on your remote servers, you can specify login information in a settings file:
+
+```ini
+# /home/<username>/.awslib/settings.conf
+[SSH]
+KEY_FILE = /home/<username>/.ec2/myserver.pem
+USER = ubuntu
+```
+
+
+See Boto's documentation for more how to set Amazon access credentials: http://boto.readthedocs.org/en/latest/boto_config_tut.html
+
+See Fabric's documentation on how to set SSH access credentials: http://docs.fabfile.org/en/1.6/usage/execution.html#leveraging-native-ssh-config-files
+
 #Usage#
 
 List all ELB instances:
@@ -36,7 +57,7 @@ List all EC2 instances:
 $ aws ec2 list
 ```
 
-List all EC2 in ELB named "MyBalancer":
+List all EC2 instances for ELB named "MyBalancer":
 ```bash
 $ aws ec2 list --elb MyBalancer
 ```
@@ -51,7 +72,7 @@ Run Fabric tasks against EC2 instances and define fabfile to be used:
 $ aws ec2 fab mymethod -f myfabfile.py
 ```
 
-You can pass parameters to your methods as with `fab` command:
+You can pass parameters to your methods as with Fabric's `fab` command:
 ```bash
 $ aws ec2 fab mymethod:name='Jeff'
 ```
