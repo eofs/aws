@@ -3,7 +3,7 @@ Utility program for Amazon Web Services
 
 **Features**
 
-* Wrapper for Boto and Fabric
+* Wrapper for [Boto](http://boto.readthedocs.org/) and [Fabric](http://docs.fabfile.org/)
 * List instances and regions for ELB and EC2 services
 * List EC2 instances for specific ELB
 * Run Fabric tasks against all EC2 instances or for EC2 instances for specific ELB
@@ -31,19 +31,27 @@ $ pip install aws
 
 You only need to make sure that `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables are set.
 
-If you want to use Fabric and execute code on your remote servers, you can specify login information in a settings file:
+If you want to use Fabric and execute code on your remote servers, or use different regions, you can set necessary info into settings file:
 
 ```ini
-# /home/<username>/.awslib/settings.conf
+# /home/<username>/.aws/settings.conf
 [SSH]
 KEY_FILE = /home/<username>/.ec2/myserver.pem
 USER = ubuntu
+
+# Service specific settings
+[EC2]
+REGION = 'eu-west-1'
+
+# Service specific settings
+[ELB]
+REGION = 'eu-west-1'
 ```
 
 
-See Boto's documentation for more how to set Amazon access credentials: http://boto.readthedocs.org/en/latest/boto_config_tut.html
+See [Boto's](http://boto.readthedocs.org/) documentation for more how to set Amazon access credentials: http://boto.readthedocs.org/en/latest/boto_config_tut.html
 
-See Fabric's documentation on how to set SSH access credentials: http://docs.fabfile.org/en/1.6/usage/execution.html#leveraging-native-ssh-config-files
+See [Fabric's](http://docs.fabfile.org/) documentation on how to set SSH access credentials: http://docs.fabfile.org/en/latest/usage/execution.html#leveraging-native-ssh-config-files
 
 #Usage#
 
