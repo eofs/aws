@@ -26,32 +26,37 @@ $ pip install aws
 
 #Usage#
 
-List all ELB instances
+List all ELB instances:
 ```bash
-$ aws elb --list
+$ aws elb list
 ```
 
-List all EC2 instances
+List all EC2 instances:
 ```bash
-$ aws ec2 --list
+$ aws ec2 list
 ```
 
-List all EC2 in ELB named "MyBalancer"
+List all EC2 in ELB named "MyBalancer":
 ```bash
-$ aws ec2 --list --elb MyBalancer
+$ aws ec2 list --elb MyBalancer
 ```
 
-Run Fabric tasks against EC2 instances
+Run Fabric tasks against EC2 instances:
 ```bash
-$ aws ec2 --fab myfabfile mymethod
+$ aws ec2 fab mymethod
 ```
 
-You can pass parameters to your methods as with `fab` command
+Run Fabric tasks against EC2 instances and define fabfile to be used:
 ```bash
-$ aws ec2 --fab myfabfile mymethod:name='Jeff'
+$ aws ec2 fab mymethod -f myfabfile.py
 ```
 
-Or run Fabric tasks against only EC2 instances inside ELB
+You can pass parameters to your methods as with `fab` command:
 ```bash
-$ aws ec2 --elb MyBalancer --fab myfabfile mymethod
+$ aws ec2 fab mymethod:name='Jeff'
+```
+
+Or run Fabric tasks against only EC2 instances inside ELB:
+```bash
+$ aws ec2 fab --elb MyBalancer mymethod
 ```
