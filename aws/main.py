@@ -1,6 +1,7 @@
 #!/bin/env python
 
 import argparse
+import prettytable
 import getpass
 
 from fabric import api as fab
@@ -22,6 +23,17 @@ def list_regions(service):
             'name': region.name,
             'endpoint': region.endpoint,
         }
+
+
+def instance_table_string(instances):
+    """
+    Print nice looking table of information from list of instances
+    """
+    t = prettytable.PrettyTable(['ID', 'State', 'Type', 'Name', 'DNS'])
+    t.align = 'l'
+    for i in instances:
+        t.add_row([i.id, i.state, i.instance_type, i.key_name, i.dns_name])
+    return t
 
 
 def ec2_fab(service, args):
@@ -62,10 +74,28 @@ def ec2_list_handler(parser, args):
     else:
         instance_ids = args.instances
         reservations = service.list(elb=args.elb, instance_ids=instance_ids)
+        instance_list = []
         for r in reservations:
-            for i in r.instances:
-                state = ('       ' if i.state == 'stopped' else i.state)
-                print '[%s] [%s] [%s] %s:\t%s' % (state, i.instance_type, i.id, i.key_name, i.dns_name)
+            instance_list.extend(r.instances)
+        print instance_table_string(instance_list)
+
+
+def ec2_create_handler(parser, args):
+    pass
+
+
+def ec2_start_handler(parser, args):
+    service = EC2Service(settings)
+    instance_ids = args.instance
+    instances = service.start(instance_ids)
+    print instance_table_string(instances)
+
+
+def ec2_stop_handler(parser, args):
+    service = EC2Service(settings)
+    instance_ids = args.instance
+    instances = service.stop(instance_ids, args.force)
+    print instance_table_string(instances)
 
 
 def ec2_fab_handler(parser, args):
@@ -114,8 +144,18 @@ def main():
                                  help='Specify one or more methods to execute.')
     ec2_service_fab.set_defaults(func=ec2_fab_handler)
 
-    # ec2_service_start = ec2_subparsers.add_parser('start', help='Start instance')
-    # ec2_service_stop = ec2_subparsers.add_parser('stop', help='Stop instance')
+    ec2_service_create = ec2_subparsers.add_parser('create', help='Create and start new instances')
+    ec2_service_create.set_defaults(func=ec2_create_handler)
+
+    ec2_service_start = ec2_subparsers.add_parser('start', help='Start existing instances')
+    ec2_service_start.add_argument('instance', nargs='+', help='ID of an instance to start')
+    ec2_service_start.set_defaults(func=ec2_start_handler)
+
+    ec2_service_stop = ec2_subparsers.add_parser('stop', help='Stop instance')
+    ec2_service_stop.add_argument('instance', nargs='+', help='ID of an instance to stop')
+    ec2_service_stop.add_argument('--force', '-f', action='store_true', help='Force stop')
+    ec2_service_stop.set_defaults(func=ec2_stop_handler)
+
     # ec2_service_terminate = ec2_subparsers.add_parser('terminate', help='Terminate instance')
 
     # Elastic Load Balancing

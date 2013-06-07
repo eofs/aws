@@ -26,7 +26,7 @@ setup(name=name,
       license='BSD',
       packages=find_packages(),
       zip_safe=False,
-      install_requires=['boto', 'fabric>=1.6'],
+      install_requires=['boto', 'fabric>=1.6', 'prettytable>=0.7'],
       entry_points={
           'console_scripts': ['aws=aws.main:main'],
       },

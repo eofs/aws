@@ -41,3 +41,9 @@ class EC2Service(BaseService):
         hosts = [i.public_dns_name for i in instances]
         hosts.sort()
         return hosts
+
+    def start(self, instance_ids):
+        return self.conn.start_instances(instance_ids)
+
+    def stop(self, instance_ids, force=False):
+        return self.conn.stop_instances(instance_ids, force)
