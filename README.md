@@ -10,7 +10,11 @@ Utility program for Amazon Web Services
 
 **Motivation**
 
-It's possible to specify target hosts inside your Fabric files dynamically or statically. Modifying list of hosts would require you to modify your code directly. I didn't like that so I created a tool to easily define list of target machines for your tasks.
+We all love Boto and Fabric. Why not combine them?
+
+Goal of this project is to provide easy to use command line interface for Boto and provide tools for finding out hosts for your Fabric remote calls.
+
+Are you using Fabric? Now you don't have to write code to find your Amazon EC2 instances by yourself. Just pass the name of your Elastic Load Balancer and name of your custom Fabric function and your servers are updated.
 
 **TODO**
 
