@@ -44,11 +44,11 @@ def ec2_table(instances):
     """
     Print nice looking table of information from list of instances
     """
-    t = prettytable.PrettyTable(['ID', 'State', 'Image', 'Name', 'Type', 'SSH key', 'DNS'])
+    t = prettytable.PrettyTable(['ID', 'State', 'Monitored', 'Image', 'Name', 'Type', 'SSH key', 'DNS'])
     t.align = 'l'
     for i in instances:
         name = i.tags.get('Name', '')
-        t.add_row([i.id, i.state, i.image_id, name, i.instance_type, i.key_name, i.dns_name])
+        t.add_row([i.id, i.state, i.monitored, i.image_id, name, i.instance_type, i.key_name, i.dns_name])
     return t
 
 def ec2_image_table(images):
@@ -131,7 +131,7 @@ def ec2_create_image_handler(parser, args):
     image_id = service.create_image(instance_id, name, description, no_reboot)
 
     # Print list of images
-    images = service.images(image_ids, owners=owners)
+    images = service.images(owners=['self'])
     print ec2_image_table(images)
 
 
@@ -280,8 +280,9 @@ def main():
     ec2_service_images.set_defaults(func=ec2_images_handler)
 
     ec2_service_create_image = ec2_subparsers.add_parser('create-image', help='Create AMI image from instance')
+    ec2_service_create_image.add_argument('instance', help='ID of an instance to image')
     ec2_service_create_image.add_argument('name', help='The name of the image')
-    ec2_service_create_image.add_argument('description', nargs='?', help='Optional description for the image')
+    ec2_service_create_image.add_argument('--description', '-d', help='Optional description for the image')
     ec2_service_create_image.add_argument('--noreboot', action='store_true', default=False,
                                           help='Do not shutdown the instance before creating image. ' +
                                                'Note: System integrity might suffer if used.')
