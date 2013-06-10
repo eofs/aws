@@ -116,8 +116,8 @@ def ec2_create_handler(parser, args):
 
 def ec2_images_handler(parser, args):
     service = EC2Service(settings)
-    image_ids = args.images
-    owners = args.owners
+    image_ids = args.image
+    owners = ['self']
     images = service.images(image_ids, owners=owners)
     print ec2_image_table(images)
 
@@ -129,7 +129,10 @@ def ec2_create_image_handler(parser, args):
     description = args.description
     no_reboot = args.noreboot
     image_id = service.create_image(instance_id, name, description, no_reboot)
-    print image_id
+
+    # Print list of images
+    images = service.images(image_ids, owners=owners)
+    print ec2_image_table(images)
 
 
 def ec2_start_handler(parser, args):
@@ -272,10 +275,8 @@ def main():
     ec2_service_terminate.set_defaults(func=ec2_terminate_handler)
 
     ec2_service_images = ec2_subparsers.add_parser('images', help='List AMI images')
-    ec2_service_images_exclusive = ec2_service_images.add_mutually_exclusive_group(required=True)
-    ec2_service_images_exclusive.add_argument('--images', '-i', nargs='*',
-                                              help='List of image IDs to use as filter')
-    ec2_service_images_exclusive.add_argument('--owners', '-o', nargs='?', help='Filter by owner IDs')
+    ec2_service_images.add_argument('image', nargs='*',
+                                              help='Image ID to use as filter')
     ec2_service_images.set_defaults(func=ec2_images_handler)
 
     ec2_service_create_image = ec2_subparsers.add_parser('create-image', help='Create AMI image from instance')
