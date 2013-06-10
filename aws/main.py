@@ -29,13 +29,15 @@ def elb_table(balancers):
     """
     Print nice looking table of information from list of load balancers
     """
-    t = prettytable.PrettyTable(['Name', 'DNS', 'Ports', 'Created'])
+    t = prettytable.PrettyTable(['Name', 'DNS', 'Ports', 'Zones', 'Created'])
     t.align = 'l'
     for b in balancers:
         ports = ['%s: %s -> %s' % (l[2], l[0], l[1]) for l in b.listeners]
         ports = '\n'.join(ports)
-        t.add_row([b.name, b.dns_name, ports, b.created_time])
+        zones = '\n'.join(b.availability_zones)
+        t.add_row([b.name, b.dns_name, ports, zones, b.created_time])
     return t
+
 
 def ec2_table(instances):
     """
@@ -109,11 +111,13 @@ def ec2_stop_handler(parser, args):
     instances = service.stop(instance_ids, args.force)
     print ec2_table(instances)
 
+
 def ec2_terminate_handler(parser, args):
     service = EC2Service(settings)
     instance_ids = args.instance
     instances = service.terminate(instance_ids)
     print ec2_table(instances)
+
 
 def ec2_fab_handler(parser, args):
     service = EC2Service(settings)
@@ -126,6 +130,24 @@ def elb_list_handler(parser, args):
         list_regions(service)
     else:
         print elb_table(service.list())
+
+
+def elb_zones_handler(parser, args):
+    service = ELBService(settings)
+    balancer = args.balancer
+    zone_names = args.zone
+    add = True
+    if 'disable' == args.status:
+        add = False
+
+    try:
+        zones = service.zones(balancer, zone_names, add)
+    except AttributeError:
+        # Remote this try/except after https://github.com/boto/boto/pull/1492
+        # is merged into master.
+        pass
+
+    print elb_table(service.list(names=[balancer]))
 
 
 def main():
@@ -184,6 +206,12 @@ def main():
     elb_service_list.add_argument('--type', default='balancers', choices=['balancers', 'regions'],
                                   help='List items of this type')
     elb_service_list.set_defaults(func=elb_list_handler)
+
+    elb_service_zones = elb_subparsers.add_parser('zones', help='Enable or disable zone')
+    elb_service_zones.add_argument('balancer', help='Name of the load balancer')
+    elb_service_zones.add_argument('zone', nargs='+', help='Name of the zone')
+    elb_service_zones.add_argument('status', help='Disable of enable zones', choices=['enable', 'disable'])
+    elb_service_zones.set_defaults(func=elb_zones_handler)
 
     # elb_service_create = elb_subparsers.add_parser('create', help='Create new Load Balancer')
     # elb_service_delete = elb_subparsers.add_parser('delete', help='Delete Load Balancer')

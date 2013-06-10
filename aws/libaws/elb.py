@@ -13,5 +13,10 @@ class ELBService(BaseService):
     def regions(self, *args, **kwargs):
         return elb.regions(*args, **kwargs)
 
-    def list(self, *args, **kwargs):
-        return self.conn.get_all_load_balancers(*args, **kwargs)
+    def list(self, names=[], *args, **kwargs):
+        return self.conn.get_all_load_balancers(load_balancer_names=names, *args, **kwargs)
+
+    def zones(self, balancer, zone_names, add=True):
+        if add:
+            return self.conn.enable_availability_zones(balancer, zone_names)
+        return self.conn.disable_availability_zones(balancer, zone_names)
