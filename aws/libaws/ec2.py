@@ -50,3 +50,9 @@ class EC2Service(BaseService):
 
     def terminate(self, instance_ids):
         return self.conn.terminate_instances(instance_ids)
+
+    def create_image(self, instance_id, name, description=None, no_reboot=False):
+        return self.conn.create_image(instance_id, name, description, no_reboot)
+
+    def images(self, image_ids=None, *args, **kwargs):
+        return self.conn.get_all_images(image_ids, *args, **kwargs)

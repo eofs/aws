@@ -10,6 +10,7 @@ from fabric.main import find_fabfile, load_fabfile, parse_arguments
 
 from aws import __version__
 from libaws.conf import settings
+from libaws.autoscale import ASService
 from libaws.ec2 import EC2Service
 from libaws.elb import ELBService
 
@@ -49,6 +50,15 @@ def ec2_table(instances):
         t.add_row([i.id, i.state, i.instance_type, i.key_name, i.dns_name])
     return t
 
+def ec2_image_table(images):
+    """
+    Print nice looking table of information from images
+    """
+    t = prettytable.PrettyTable(['ID', 'State', 'Name', 'Owner', 'Root device', 'Is public', 'Description'])
+    t.align = 'l'
+    for i in images:
+        t.add_row([i.id, i.state, i.name, i.ownerId, i.root_device_type, i.is_public, i.description])
+    return t
 
 def ec2_fab(service, args):
     """
@@ -81,6 +91,11 @@ def ec2_fab(service, args):
                     *args, **kwargs)
 
 
+def as_list_handler(parser, args):
+    service = ASService(settings)
+    print service.list()
+
+
 def ec2_list_handler(parser, args):
     service = EC2Service(settings)
     if 'regions' == args.type:
@@ -96,6 +111,24 @@ def ec2_list_handler(parser, args):
 
 def ec2_create_handler(parser, args):
     pass
+
+
+def ec2_images_handler(parser, args):
+    service = EC2Service(settings)
+    image_ids = args.images
+    owners = args.owners
+    images = service.images(image_ids, owners=owners)
+    print ec2_image_table(images)
+
+
+def ec2_create_image_handler(parser, args):
+    service = EC2Service(settings)
+    instance_id = args.instance
+    name = args.name
+    description = args.description
+    no_reboot = args.noreboot
+    image_id = service.create_image(instance_id, name, description, no_reboot)
+    print image_id
 
 
 def ec2_start_handler(parser, args):
@@ -130,6 +163,7 @@ def elb_delete_handler(parser, args):
     service.delete(name)
     print elb_table(service.list())
 
+
 def elb_list_handler(parser, args):
     service = ELBService(settings)
     if 'regions' == args.type:
@@ -147,6 +181,7 @@ def elb_instances_handler(parser, args):
         instances.extend(r.instances)
     print ec2_table(instances)
 
+
 def elb_register_handler(parser, args):
     service = ELBService(settings)
     name = args.balancer
@@ -161,6 +196,7 @@ def elb_deregister_handler(parser, args):
     instance_ids = args.instance
     instances = service.deregister(name, instance_ids)
     print ec2_table(instances)
+
 
 def elb_zones_handler(parser, args):
     service = ELBService(settings)
@@ -188,6 +224,13 @@ def main():
                                 version=__version__)
     subparsers = p.add_subparsers(help='Select Amazon AWS service to use')
 
+    # Auto Scaling
+    as_service = subparsers.add_parser('as', help='Amazon Auto Scaling')
+    as_subparsers = as_service.add_subparsers(help='Perform action')
+
+    as_service_list = as_subparsers.add_parser('list', help='List Auto Scaling groups')
+    as_service_list.set_defaults(func=as_list_handler)
+
     # Elastic Cloud Computing
     ec2_service = subparsers.add_parser('ec2', help='Amazon Elastic Compute Cloud')
     ec2_subparsers = ec2_service.add_subparsers(help='Perform action')
@@ -196,7 +239,7 @@ def main():
     ec2_service_list.add_argument('--elb', '-e', help='Filter instances inside this ELB instance')
     ec2_service_list.add_argument('--instances', '-i', nargs='*', metavar=('id', 'id'),
                                   help='List of instance IDs to use as filter')
-    ec2_service_list.add_argument('--type', default='instances', choices=['instances', 'regions'],
+    ec2_service_list.add_argument('--type', default='instances', choices=['instances', 'regions', 'images'],
                                   help='List items of this type')
     ec2_service_list.set_defaults(func=ec2_list_handler)
 
@@ -226,6 +269,21 @@ def main():
     ec2_service_terminate = ec2_subparsers.add_parser('terminate', help='Terminate instances')
     ec2_service_terminate.add_argument('instance', nargs='+', help='ID of an instance to terminate')
     ec2_service_terminate.set_defaults(func=ec2_terminate_handler)
+
+    ec2_service_images = ec2_subparsers.add_parser('images', help='List AMI images')
+    ec2_service_images_exclusive = ec2_service_images.add_mutually_exclusive_group(required=True)
+    ec2_service_images_exclusive.add_argument('--images', '-i', nargs='*',
+                                              help='List of image IDs to use as filter')
+    ec2_service_images_exclusive.add_argument('--owners', '-o', nargs='?', help='Filter by owner IDs')
+    ec2_service_images.set_defaults(func=ec2_images_handler)
+
+    ec2_service_create_image = ec2_subparsers.add_parser('create-image', help='Create AMI image from instance')
+    ec2_service_create_image.add_argument('name', help='The name of the image')
+    ec2_service_create_image.add_argument('description', nargs='?', help='Optional description for the image')
+    ec2_service_create_image.add_argument('--noreboot', action='store_true', default=False,
+                                          help='Do not shutdown the instance before creating image. ' +
+                                               'Note: System integrity might suffer if used.')
+    ec2_service_create_image.set_defaults(func=ec2_create_image_handler)
 
     # Elastic Load Balancing
     elb_service = subparsers.add_parser('elb', help='Amazon Elastic Load Balancing')
