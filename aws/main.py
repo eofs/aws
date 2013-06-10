@@ -143,8 +143,7 @@ def elb_zones_handler(parser, args):
     try:
         zones = service.zones(balancer, zone_names, add)
     except AttributeError:
-        # Remote this try/except after https://github.com/boto/boto/pull/1492
-        # is merged into master.
+        # TODO Remote this try/except after https://github.com/boto/boto/pull/1492 is merged into master.
         pass
 
     print elb_table(service.list(names=[balancer]))
