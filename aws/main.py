@@ -124,6 +124,12 @@ def ec2_fab_handler(parser, args):
     ec2_fab(service, args)
 
 
+def elb_delete_handler(parser, args):
+    service = ELBService(settings)
+    name = args.balancer
+    service.delete(name)
+    print elb_table(service.list())
+
 def elb_list_handler(parser, args):
     service = ELBService(settings)
     if 'regions' == args.type:
@@ -134,8 +140,8 @@ def elb_list_handler(parser, args):
 
 def elb_instances_handler(parser, args):
     service = EC2Service(settings)
-    balancer = args.balancer
-    reservations = service.list(elb=balancer)
+    name = args.balancer
+    reservations = service.list(elb=name)
     instances = []
     for r in reservations:
         instances.extend(r.instances)
@@ -143,34 +149,34 @@ def elb_instances_handler(parser, args):
 
 def elb_register_handler(parser, args):
     service = ELBService(settings)
-    balancer = args.balancer
+    name = args.balancer
     instance_ids = args.instance
-    instances = service.register(balancer, instance_ids)
+    instances = service.register(name, instance_ids)
     print ec2_table(instances)
 
 
 def elb_deregister_handler(parser, args):
     service = ELBService(settings)
-    balancer = args.balancer
+    name = args.balancer
     instance_ids = args.instance
-    instances = service.deregister(balancer, instance_ids)
+    instances = service.deregister(name, instance_ids)
     print ec2_table(instances)
 
 def elb_zones_handler(parser, args):
     service = ELBService(settings)
-    balancer = args.balancer
+    name = args.balancer
     zone_names = args.zone
     add = True
     if 'disable' == args.status:
         add = False
 
     try:
-        zones = service.zones(balancer, zone_names, add)
+        zones = service.zones(name, zone_names, add)
     except AttributeError:
         # TODO Remote this try/except after https://github.com/boto/boto/pull/1492 is merged into master.
         pass
 
-    print elb_table(service.list(names=[balancer]))
+    print elb_table(service.list(names=[name]))
 
 
 def main():
@@ -231,7 +237,7 @@ def main():
     elb_service_list.set_defaults(func=elb_list_handler)
 
     elb_service_instances = elb_subparsers.add_parser('instances', help='List registered instances')
-    elb_service_instances.add_argument('balancer', help='Name of the load balancer')
+    elb_service_instances.add_argument('balancer', help='Name of the Load Balancer')
     elb_service_instances.set_defaults(func=elb_instances_handler)
 
     elb_service_register = elb_subparsers.add_parser('register', help='Register instances to balancer')
@@ -240,15 +246,19 @@ def main():
     elb_service_register.set_defaults(func=elb_register_handler)
 
     elb_service_deregister = elb_subparsers.add_parser('deregister', help='Deregister instances of balancer')
-    elb_service_deregister.add_argument('balancer', help='Name of the load balancer')
+    elb_service_deregister.add_argument('balancer', help='Name of the Load Balancer')
     elb_service_deregister.add_argument('instance', nargs='+', help='ID of an instance to deregister')
     elb_service_deregister.set_defaults(func=elb_deregister_handler)
 
     elb_service_zones = elb_subparsers.add_parser('zones', help='Enable or disable availability zones')
-    elb_service_zones.add_argument('balancer', help='Name of the load balancer')
+    elb_service_zones.add_argument('balancer', help='Name of the Load Balancer')
     elb_service_zones.add_argument('zone', nargs='+', help='Name of the availability zone')
     elb_service_zones.add_argument('status', help='Disable of enable zones', choices=['enable', 'disable'])
     elb_service_zones.set_defaults(func=elb_zones_handler)
+
+    elb_service_delete = elb_subparsers.add_parser('delete', help='Delete Load Balancer')
+    elb_service_delete.add_argument('balancer', help='Name of the Load Balancer')
+    elb_service_delete.set_defaults(func=elb_delete_handler)
 
     # elb_service_create = elb_subparsers.add_parser('create', help='Create new Load Balancer')
     # elb_service_delete = elb_subparsers.add_parser('delete', help='Delete Load Balancer')

@@ -13,6 +13,9 @@ class ELBService(BaseService):
     def regions(self, *args, **kwargs):
         return elb.regions(*args, **kwargs)
 
+    def delete(self, name):
+        return self.conn.delete_load_balancer(name)
+
     def list(self, names=[], *args, **kwargs):
         return self.conn.get_all_load_balancers(load_balancer_names=names, *args, **kwargs)
 
