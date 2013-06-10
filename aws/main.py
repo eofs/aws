@@ -44,10 +44,11 @@ def ec2_table(instances):
     """
     Print nice looking table of information from list of instances
     """
-    t = prettytable.PrettyTable(['ID', 'State', 'Type', 'Name', 'DNS'])
+    t = prettytable.PrettyTable(['ID', 'State', 'Image', 'Name', 'Type', 'SSH key', 'DNS'])
     t.align = 'l'
     for i in instances:
-        t.add_row([i.id, i.state, i.instance_type, i.key_name, i.dns_name])
+        name = i.tags.get('Name', '')
+        t.add_row([i.id, i.state, i.image_id, name, i.instance_type, i.key_name, i.dns_name])
     return t
 
 def ec2_image_table(images):
