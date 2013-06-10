@@ -47,3 +47,6 @@ class EC2Service(BaseService):
 
     def stop(self, instance_ids, force=False):
         return self.conn.stop_instances(instance_ids, force)
+
+    def terminate(self, instance_ids):
+        return self.conn.terminate_instances(instance_ids)

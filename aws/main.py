@@ -109,6 +109,11 @@ def ec2_stop_handler(parser, args):
     instances = service.stop(instance_ids, args.force)
     print ec2_table(instances)
 
+def ec2_terminate_handler(parser, args):
+    service = EC2Service(settings)
+    instance_ids = args.instance
+    instances = service.terminate(instance_ids)
+    print ec2_table(instances)
 
 def ec2_fab_handler(parser, args):
     service = EC2Service(settings)
@@ -162,12 +167,14 @@ def main():
     ec2_service_start.add_argument('instance', nargs='+', help='ID of an instance to start')
     ec2_service_start.set_defaults(func=ec2_start_handler)
 
-    ec2_service_stop = ec2_subparsers.add_parser('stop', help='Stop instance')
+    ec2_service_stop = ec2_subparsers.add_parser('stop', help='Stop instances')
     ec2_service_stop.add_argument('instance', nargs='+', help='ID of an instance to stop')
     ec2_service_stop.add_argument('--force', '-f', action='store_true', help='Force stop')
     ec2_service_stop.set_defaults(func=ec2_stop_handler)
 
-    # ec2_service_terminate = ec2_subparsers.add_parser('terminate', help='Terminate instance')
+    ec2_service_terminate = ec2_subparsers.add_parser('terminate', help='Terminate instances')
+    ec2_service_terminate.add_argument('instance', nargs='+', help='ID of an instance to terminate')
+    ec2_service_terminate.set_defaults(func=ec2_terminate_handler)
 
     # Elastic Load Balancing
     elb_service = subparsers.add_parser('elb', help='Amazon Elastic Load Balancing')
