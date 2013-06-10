@@ -16,6 +16,12 @@ class ELBService(BaseService):
     def list(self, names=[], *args, **kwargs):
         return self.conn.get_all_load_balancers(load_balancer_names=names, *args, **kwargs)
 
+    def register(self, balancer, instance_ids):
+        return self.conn.register_instances(balancer, instance_ids)
+
+    def deregister(self, balancer, instance_ids):
+        return self.conn.deregister_instances(balancer, instance_ids)
+
     def zones(self, balancer, zone_names, add=True):
         if add:
             return self.conn.enable_availability_zones(balancer, zone_names)

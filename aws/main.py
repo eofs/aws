@@ -132,6 +132,30 @@ def elb_list_handler(parser, args):
         print elb_table(service.list())
 
 
+def elb_instances_handler(parser, args):
+    service = EC2Service(settings)
+    balancer = args.balancer
+    reservations = service.list(elb=balancer)
+    instances = []
+    for r in reservations:
+        instances.extend(r.instances)
+    print ec2_table(instances)
+
+def elb_register_handler(parser, args):
+    service = ELBService(settings)
+    balancer = args.balancer
+    instance_ids = args.instance
+    instances = service.register(balancer, instance_ids)
+    print ec2_table(instances)
+
+
+def elb_deregister_handler(parser, args):
+    service = ELBService(settings)
+    balancer = args.balancer
+    instance_ids = args.instance
+    instances = service.deregister(balancer, instance_ids)
+    print ec2_table(instances)
+
 def elb_zones_handler(parser, args):
     service = ELBService(settings)
     balancer = args.balancer
@@ -206,9 +230,23 @@ def main():
                                   help='List items of this type')
     elb_service_list.set_defaults(func=elb_list_handler)
 
-    elb_service_zones = elb_subparsers.add_parser('zones', help='Enable or disable zone')
+    elb_service_instances = elb_subparsers.add_parser('instances', help='List registered instances')
+    elb_service_instances.add_argument('balancer', help='Name of the load balancer')
+    elb_service_instances.set_defaults(func=elb_instances_handler)
+
+    elb_service_register = elb_subparsers.add_parser('register', help='Register instances to balancer')
+    elb_service_register.add_argument('balancer', help='Name of the load balancer')
+    elb_service_register.add_argument('instance', nargs='+', help='ID of an instance to register')
+    elb_service_register.set_defaults(func=elb_register_handler)
+
+    elb_service_deregister = elb_subparsers.add_parser('deregister', help='Deregister instances of balancer')
+    elb_service_deregister.add_argument('balancer', help='Name of the load balancer')
+    elb_service_deregister.add_argument('instance', nargs='+', help='ID of an instance to deregister')
+    elb_service_deregister.set_defaults(func=elb_deregister_handler)
+
+    elb_service_zones = elb_subparsers.add_parser('zones', help='Enable or disable availability zones')
     elb_service_zones.add_argument('balancer', help='Name of the load balancer')
-    elb_service_zones.add_argument('zone', nargs='+', help='Name of the zone')
+    elb_service_zones.add_argument('zone', nargs='+', help='Name of the availability zone')
     elb_service_zones.add_argument('status', help='Disable of enable zones', choices=['enable', 'disable'])
     elb_service_zones.set_defaults(func=elb_zones_handler)
 
